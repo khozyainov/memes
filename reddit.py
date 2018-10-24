@@ -23,7 +23,7 @@ def get_photos_from_reddit(subreddit, count):
         file_format = file_name.rsplit('.',1)[1]
         if (file_format != 'jpg' and file_format != 'png'):
             continue
-        destination = 'tmp/' + file_name
+        destination = '/tmp/' + file_name
         urllib.request.urlretrieve(url, destination)
         post = {'title': submission.title, 'photo': file_name, 'score': submission.score}
         posts.append(post)

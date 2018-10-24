@@ -22,7 +22,7 @@ def main():
     publish_time = current_time + 60
     
     for post in posts:
-        photo = 'tmp/'+post['photo']
+        photo = '/tmp/'+post['photo']
 
         upload_url = api.photos.getWallUploadServer(group_id=GROUP_ID)['upload_url']
         request = requests.post(upload_url, files={'photo': open(photo, "rb")})
