@@ -1,30 +1,56 @@
 import requests
 import json
 import reddit
-import vk_api
+import vk_requests
+import time
 
-# Токен бессрочный с правами wall, market и photos
-
-
-TOKEN = "6e2b71a6d0862ba01904e5c9dee5e1ce15199ef4b997f05458481931a8d25839aa4c9eaad5064f4356595"
 GROUP_ID = "173009640"
-OWNER_ID_GROUP = "-173009640"
-API_V = "5.87"
+APP_ID = "6730383"
+
+LOGIN = 'entonyj@yandex.ru'
+PASSWORD = 'a95nton412'
+
 
 def main():
 
-    login, password = 'entonyj@yandex.ru', 'a95nton412'
-    vk_session = vk_api.VkApi(login, password)
+    print("start")
+    api = vk_requests.create_api(app_id=APP_ID, login=LOGIN, password=PASSWORD, scope='wall,photos')
 
-    try:
-        vk_session.auth(token_only=True)
-    except vk_api.AuthError as error_msg:
-        print(error_msg)
-        return
+    posts = reddit.get_photos_from_reddit('memes', 24)
+    print("downloaded {count} posts".format(count=len(posts)))
+    current_time = int(time.time())
+    publish_time = current_time + 60
+    
+    for post in posts:
+        photo = 'tmp/'+post['photo']
 
-    upload = vk_api.VkUpload(vk_session)   
-    photos = reddit.get_photos_from_reddit('memes')
-    upload.photo_wall(photos, group_id=GROUP_ID)
+        upload_url = api.photos.getWallUploadServer(group_id=GROUP_ID)['upload_url']
+        request = requests.post(upload_url, files={'photo': open(photo, "rb")})
+        
+        
+        params = {
+                'server': request.json()['server'],
+                'photo': request.json()['photo'],
+                'hash': request.json()['hash'],
+                'group_id': GROUP_ID
+                }
+
+        save_r = api.photos.saveWallPhoto(**params)
+        
+        photo_id = save_r[0]['id']
+        owner_id = save_r[0]['owner_id'] 
+
+        params = {'attachments': 'photo{owner_id}_{photo_id}'.format(owner_id=owner_id, photo_id=photo_id),
+                'message': post['title'],
+                'owner_id': '-' + GROUP_ID,
+                'from_group': '1',
+                'publish_date': publish_time,
+                }
+        api.wall.post(**params)
+        print("published {title}".format(title=post['title']))
+        publish_time = publish_time + 60 * 60
+        time.sleep(1)
+    print("success")
 
 if __name__ == '__main__':
     main()
