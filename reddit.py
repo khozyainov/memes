@@ -1,17 +1,29 @@
 import praw
 import urllib.request
-import ssl
+import io
 
-reddit = praw.Reddit(client_id='3bPZJic_DrwV0A',
-                     client_secret='RY41rFo97fNKRktGEsI894enFEw',
-                     user_agent='khozyainov_service')
+CLIENT_ID = '3bPZJic_DrwV0A'
+CLIEN_SECRET = 'RY41rFo97fNKRktGEsI894enFEw'
+USER_AGENT = 'khozyainov_service'
 
-subreddit = reddit.subreddit('memes')
+def get_photos_from_reddit(subreddit):
+    reddit = praw.Reddit(client_id=CLIENT_ID,
+                        client_secret=CLIEN_SECRET,
+                        user_agent=USER_AGENT)
 
-memes = subreddit.new(limit=3)
-context = ssl._create_unverified_context()
+    subreddit = reddit.subreddit(subreddit)
+    new_posts = subreddit.new(limit=3)
+    photos = []
 
-for submission in memes:
-    url = submission.url
-    destination = url.rsplit('/',1)[1]
-    urllib.request.urlretrieve(url, destination)
+    for submission in new_posts:
+        url = submission.url
+        file_format = url.rsplit('.',1)[1]
+        if (file_format != 'jpg' and file_format != 'jpeg'):
+            continue
+        with urllib.request.urlopen(url) as resource:
+            photo = io.BytesIO(resource.read())
+            photos.append(photo)
+        if (len(photos) == 24):
+            break
+
+    return photos
