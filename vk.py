@@ -3,12 +3,13 @@ import json
 import reddit
 import vk_requests
 import time
+import os
 
 GROUP_ID = "173009640"
 APP_ID = "6730383"
 
-LOGIN = 'entonyj@yandex.ru'
-PASSWORD = 'a95nton412'
+LOGIN = os.environ.get("VK_MEMES_LOGIN", '')
+PASSWORD = os.environ.get("VK_MEMES_PASSWORD", '')
 
 
 def main():
