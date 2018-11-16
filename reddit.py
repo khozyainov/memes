@@ -20,7 +20,9 @@ def get_photos_from_reddit(subreddit, count):
     for submission in new_posts:
         url = submission.url
         file_name = url.rsplit('/',1)[1]
-        file_format = file_name.rsplit('.',1)[1]
+        file_format = None
+        if '.' in file_name:
+            file_format = file_name.rsplit('.',1)[1]
         if (file_format != 'jpg' and file_format != 'png'):
             continue
         destination = '/tmp/' + file_name
