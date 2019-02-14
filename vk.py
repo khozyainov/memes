@@ -20,7 +20,7 @@ def main():
     posts = reddit.get_photos_from_reddit('memes', 24)
     print("downloaded {count} posts".format(count=len(posts)))
     current_time = int(time.time())
-    publish_time = current_time + 60
+    publish_time = current_time + 60*42
     
     for post in posts:
         photo = '/tmp/'+post['photo']
